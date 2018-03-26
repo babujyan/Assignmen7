@@ -40,7 +40,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Class1.cs" />
     <Compile Include="Enumerable.cs" />
     <Compile Include="Iterator.cs" />
     <Compile Include="OrderBy.cs" />

@@ -5,7 +5,7 @@ VisualStudioVersion = 15.0.27130.2024
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assignmen7", "Assignmen7\Assignmen7.csproj", "{DD602CBA-A338-4906-81F8-852D9F2BECF2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClassLibrary2", "ClassLibrary2\ClassLibrary2.csproj", "{219A9281-5BD5-4297-ADA1-1699E87ED9A2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyLINQ", "ClassLibrary2\MyLINQ.csproj", "{219A9281-5BD5-4297-ADA1-1699E87ED9A2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
