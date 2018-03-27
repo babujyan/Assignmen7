@@ -29,7 +29,7 @@ namespace MyLINQ
 
         public static List<TSource> ExtensionToList<TSource>(this IEnumerable<TSource> source)
         {
-            List<TSource> list = new List<TSource>;
+            List<TSource> list = new List<TSource>();
 
             foreach(TSource i in source)
             {
@@ -42,9 +42,7 @@ namespace MyLINQ
         public static Dictionary<TKey, TSource> ExtensionToDictionary<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector)
         {
             Dictionary<TKey, TSource> dictionary = new Dictionary<TKey, TSource>();
-
             
-
             foreach (TSource i in source)
             {
                 dictionary.Add(keySelector(i), i);
@@ -52,6 +50,14 @@ namespace MyLINQ
 
             return dictionary;
         }
+
+        public static IEnumerable<IGrouping<TKey, TSource>> ExtensionGroupBy<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector) where TKey: IComparable
+        {
+            return new Grouping<TKey, TSource>(source,keySelector);
+        }
+        
+            
+
 
     }
 }
