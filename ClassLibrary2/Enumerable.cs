@@ -19,7 +19,7 @@ namespace MyLINQ
             if (source == null) throw new Exception("Source argument is Null");
             if (selector == null) throw new Exception("Selector argument is Null");
 
-            return new SelectIterator<TSource,TResult>(source,selector);
+            return new SelectEnumerable<TSource,TResult>(source,selector);
         } 
 
         public static IOrderedEnumerable<TSource> ExtensionOrderBy<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector) where TKey : IComparable

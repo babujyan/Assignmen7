@@ -6,21 +6,16 @@ using System.Collections;
 namespace MyLINQ
 {
     abstract class Iterator<TSource> : IEnumerable<TSource>, IEnumerator<TSource>
-    {
-        internal int state;
+    { 
         internal TSource current;
+        internal IEnumerator<TSource> enumerator;
 
-        public Iterator()
-        {
-            
-        }
+        public Iterator() { }
 
         public TSource Current
         {
             get { return current; }
         }
-
-        public abstract Iterator<TSource> Clone();
 
         //public virtual void Dispose()
         //{
@@ -31,7 +26,7 @@ namespace MyLINQ
 
         void IEnumerator.Reset()
         {
-            throw new NotImplementedException();
+            this.enumerator.Reset();
         }
 
         public abstract bool MoveNext();
@@ -41,22 +36,12 @@ namespace MyLINQ
             get { return Current; }
         }
 
-        public IEnumerator<TSource> GetEnumerator()
-        {
-            if (state == 0)
-            {
-                state = 1;
-                return this;
-            }
-
-            Iterator<TSource> duplicate = Clone();
-            duplicate.state = 1;
-            return duplicate;
-        }
+        public abstract IEnumerator<TSource> GetEnumerator();
+       
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return GetEnumerator();
+            return this.GetEnumerator();
         }
 
         #region IDisposable Support
@@ -68,9 +53,6 @@ namespace MyLINQ
             {
                 if (disposing)
                 {
-                    current = default(TSource);
-                    state = -1;
-
                     // TODO: dispose managed state (managed objects).
                 }
 
@@ -82,7 +64,7 @@ namespace MyLINQ
         }
 
         // TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
-        // ~SelectIterator() {
+        // ~Iterator() {
         //   // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
         //   Dispose(false);
         // }
@@ -99,136 +81,213 @@ namespace MyLINQ
 
     }
 
-    class WhereIterator<TSource> : Iterator<TSource>
+    class WhereEnumerable<TSource> : Iterator<TSource>
     {
         IEnumerable<TSource> source;
         Func<TSource, bool> predicate;
-        IEnumerator<TSource> enumerator;
+        
 
-        public WhereIterator(IEnumerable<TSource> source, Func<TSource, bool> predicate)
+        public WhereEnumerable(IEnumerable<TSource> source, Func<TSource, bool> predicate)
         {
             this.source = source;
             this.predicate = predicate;
         }
 
-        public override Iterator<TSource> Clone()
+        public override IEnumerator<TSource> GetEnumerator()
         {
-            return new WhereIterator<TSource>(source, predicate);
-        }
-
-        private bool disposedValue = false;
-
-        protected override void Dispose(bool disposing)
-        {
-            
-        
-            if (!disposedValue)
-            {
-                if (disposing)
-                {
-                    current = default(TSource);
-                    state = -1;
-
-                    // TODO: dispose managed state (managed objects).
-                }
-
-                // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
-                // TODO: set large fields to null.
-
-                disposedValue = true;
-            }
-        
-
-            if (enumerator is IDisposable) ((IDisposable)enumerator).Dispose();
-            enumerator = null;
-            base.Dispose();
+            return new WhereIterator(this.source, this.predicate);
         }
 
         public override bool MoveNext()
         {
-            switch (state)
-            {
-                case 1:
-                    enumerator = source.GetEnumerator();
-                    state = 2;
-                    goto case 2;
-                case 2:
-                    while (enumerator.MoveNext())
-                    {
-                        TSource item = enumerator.Current;
-                        if (predicate(item))
-                        {
-                            current = item;
-                            return true;
-                        }
-                    }
-                    Dispose();
-                    break;
-            }
             return false;
         }
+
+        internal class WhereIterator : IEnumerator<TSource>
+        {
+
+            private IEnumerator<TSource> WhereEnumerator;
+
+
+            Func<TSource, bool> predicate;
+
+            public TSource Current
+            {
+                get
+                {
+                    return this.WhereEnumerator.Current;
+                }
+            }
+            object IEnumerator.Current
+            {
+                get
+                {
+                    return this.WhereEnumerator.Current;
+                }
+            }
+
+            public WhereIterator(IEnumerable<TSource> source, Func<TSource, bool> predicate)
+            {
+                this.WhereEnumerator = source.GetEnumerator();
+                this.predicate = predicate;
+            }
+
+            public bool MoveNext()
+            {
+                if (this.predicate(this.WhereEnumerator.Current))
+                {
+                    return true;
+                }
+                while (this.WhereEnumerator.MoveNext())
+                {
+                    if (this.predicate(this.WhereEnumerator.Current))
+                    {
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+            public void Reset()
+            {
+                this.WhereEnumerator.MoveNext();
+            }
+
+            #region IDisposable Support
+            private bool disposedValue = false; // To detect redundant calls
+
+            protected virtual void Dispose(bool disposing)
+            {
+                if (!disposedValue)
+                {
+                    if (disposing)
+                    {
+                        // TODO: dispose managed state (managed objects).
+                    }
+
+                    // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
+                    // TODO: set large fields to null.
+
+                    disposedValue = true;
+                }
+            }
+
+            // TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
+            // ~WhereIterator() {
+            //   // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+            //   Dispose(false);
+            // }
+
+            // This code added to correctly implement the disposable pattern.
+            public void Dispose()
+            {
+                // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+                Dispose(true);
+                // TODO: uncomment the following line if the finalizer is overridden above.
+                // GC.SuppressFinalize(this);
+            }
+            #endregion
+
+        }
+
     }
 
 
-    class SelectIterator<TSource, TResult> : Iterator<TResult>
+    class SelectEnumerable<TSource, TResult> : Iterator<TResult>
     {
         IEnumerable<TSource> source;
         Func<TSource, TResult> selector;
-        IEnumerator<TSource> enumerator;
+        
 
-        public SelectIterator(IEnumerable<TSource> source, Func<TSource, TResult> selector)
+        public SelectEnumerable(IEnumerable<TSource> source, Func<TSource, TResult> selector)
         {
             this.source = source;
             this.selector = selector;
         }
 
-        public override Iterator<TResult> Clone()
+        public override IEnumerator<TResult> GetEnumerator()
         {
-            return new SelectIterator<TSource, TResult>(source, selector);
-        }
-
-        private bool disposedValue = false; // To detect redundant calls
-
-        protected override void Dispose(bool disposing)
-        {
-            if (!disposedValue)
-            {
-                if (disposing)
-                {
-                    if (enumerator is IDisposable) ((IDisposable)enumerator).Dispose();
-                    enumerator = null;
-                    base.Dispose();
-
-                    // TODO: dispose managed state (managed objects).
-                }
-
-                // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
-                // TODO: set large fields to null.
-
-                disposedValue = true;
-            }
+            return new SelectIterator(this.source, this.selector);
         }
 
         public override bool MoveNext()
         {
-            switch (state)
-            {
-                case 1:
-                    enumerator = source.GetEnumerator();
-                    state = 2;
-                    goto case 2;
-                case 2:
-                    while (enumerator.MoveNext())
-                    {
-                        TSource item = enumerator.Current;
-                        current = selector(item);
-                        return true;
-                        
-                    }
-                    Dispose();
-                    break;
-            }
             return false;
+        }
+
+        internal class SelectIterator : IEnumerator<TResult>
+        {
+            IEnumerator<TSource> selectEnumerator;
+            private Func<TSource, TResult> selector;
+
+            public TResult Current
+            {
+                get
+                {
+                    return this.selector(this.selectEnumerator.Current);
+                }
+            }
+
+            object IEnumerator.Current
+            {
+                get
+                {
+                    return this.selector(this.selectEnumerator.Current);
+                }
+            }
+
+
+            public SelectIterator(IEnumerable<TSource> source, Func<TSource, TResult> selector)
+            {
+                this.selectEnumerator = source.GetEnumerator();
+                this.selector = selector;
+            }
+
+            public bool MoveNext()
+            {
+                return this.selectEnumerator.MoveNext();
+            }
+
+            public void Reset()
+            {
+                this.selectEnumerator.Reset();
+            }
+
+            #region IDisposable Support
+            private bool disposedValue = false; // To detect redundant calls
+
+            protected virtual void Dispose(bool disposing)
+            {
+                if (!disposedValue)
+                {
+                    if (disposing)
+                    {
+                        // TODO: dispose managed state (managed objects).
+                    }
+
+                    // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
+                    // TODO: set large fields to null.
+
+                    disposedValue = true;
+                }
+            }
+
+            // TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
+            // ~SelectIterator() {
+            //   // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+            //   Dispose(false);
+            // }
+
+            // This code added to correctly implement the disposable pattern.
+            public void Dispose()
+            {
+                // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+                Dispose(true);
+                // TODO: uncomment the following line if the finalizer is overridden above.
+                // GC.SuppressFinalize(this);
+            }
+            #endregion
+
         }
     }
 }

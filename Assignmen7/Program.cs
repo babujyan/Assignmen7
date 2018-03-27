@@ -19,7 +19,7 @@ namespace Assignmen7
 
 
            
-            var b = a.ExtensionOrderBy<int, int>(f => f);
+            var b = a.ExtensionSelect<int, int>(f => f=1);
 
             foreach(int i in b)
             {
