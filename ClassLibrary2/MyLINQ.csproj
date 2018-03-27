@@ -40,11 +40,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CoppyToDictinoary.cs" />
+    <Compile Include="CoppyToList.cs" />
     <Compile Include="Enumerable.cs" />
     <Compile Include="Grouping.cs" />
     <Compile Include="Iterator.cs" />
     <Compile Include="OrderBy.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SelectEnumerable.cs" />
+    <Compile Include="WhereEnumerable.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

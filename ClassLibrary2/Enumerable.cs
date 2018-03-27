@@ -24,40 +24,33 @@ namespace MyLINQ
 
         public static IOrderedEnumerable<TSource> ExtensionOrderBy<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector) where TKey : IComparable
         {
+            if (source == null) throw new Exception("Source argument is Null");
+            if (keySelector == null) throw new Exception("KeySelector argument is Null");
+
             return new OrderedEnumerable<TSource, TKey>(source,keySelector, true);
         }
 
         public static List<TSource> ExtensionToList<TSource>(this IEnumerable<TSource> source)
         {
-            List<TSource> list = new List<TSource>();
+            if (source == null) throw new Exception("Source argument is Null");
 
-            foreach(TSource i in source)
-            {
-                list.Add(i);
-            }
-
-            return list;
+            return CoppyToList<TSource>.ToList(source);
         }
 
         public static Dictionary<TKey, TSource> ExtensionToDictionary<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector)
         {
-            Dictionary<TKey, TSource> dictionary = new Dictionary<TKey, TSource>();
-            
-            foreach (TSource i in source)
-            {
-                dictionary.Add(keySelector(i), i);
-            }
+            if (source == null) throw new Exception("Source argument is Null");
+            if (keySelector == null) throw new Exception("KeySelector argument is Null");
 
-            return dictionary;
+            return CoppyToDictinoary<TKey, TSource>.ToDictinoary(source, keySelector);
         }
 
         public static IEnumerable<IGrouping<TKey, TSource>> ExtensionGroupBy<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector) where TKey: IComparable
         {
+            if (source == null) throw new Exception("Source argument is Null");
+            if (keySelector == null) throw new Exception("KeySelector argument is Null");
+
             return new Grouping<TKey, TSource>(source,keySelector);
         }
-        
-            
-
-
     }
 }

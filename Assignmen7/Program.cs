@@ -11,25 +11,6 @@ namespace Assignmen7
     {
         static void Main(string[] args)
         {
-            List<int> a = new List<int>();
-            for (int j = 100; j > 0; j--)
-            {
-                for (int i = 100; i > 0; i--)
-                {
-                    a.Add(i);
-                }
-            }
-
-
-
-            //var b = a.ExtensionGroupBy<int,int>(f => f=1);
-
-            //foreach(var i in b)
-            //{
-            //    Console.WriteLine(i);
-            //}
-
-
 
         }    
     }
