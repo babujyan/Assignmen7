@@ -106,7 +106,7 @@ namespace MyLINQ
         internal class WhereIterator : IEnumerator<TSource>
         {
 
-            private IEnumerator<TSource> WhereEnumerator;
+            private IEnumerator<TSource> whereEnumerator;
 
 
             Func<TSource, bool> predicate;
@@ -115,42 +115,31 @@ namespace MyLINQ
             {
                 get
                 {
-                    return this.WhereEnumerator.Current;
+                    return this.whereEnumerator.Current;
                 }
             }
             object IEnumerator.Current
             {
                 get
                 {
-                    return this.WhereEnumerator.Current;
+                    return this.whereEnumerator.Current;
                 }
             }
 
             public WhereIterator(IEnumerable<TSource> source, Func<TSource, bool> predicate)
             {
-                this.WhereEnumerator = source.GetEnumerator();
+                this.whereEnumerator = source.GetEnumerator();
                 this.predicate = predicate;
             }
 
             public bool MoveNext()
             {
-                if (this.predicate(this.WhereEnumerator.Current))
-                {
-                    return true;
-                }
-                while (this.WhereEnumerator.MoveNext())
-                {
-                    if (this.predicate(this.WhereEnumerator.Current))
-                    {
-                        return true;
-                    }
-                }
-                return false;
+                 return this.whereEnumerator.MoveNext();
             }
 
             public void Reset()
             {
-                this.WhereEnumerator.MoveNext();
+                this.whereEnumerator.MoveNext();
             }
 
             #region IDisposable Support
